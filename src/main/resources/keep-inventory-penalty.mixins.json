@@ -3,7 +3,8 @@
 	"package": "fab.keepinventorypenalty.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"DeathMixin"
+		"DeathMixin",
+		"ServerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
