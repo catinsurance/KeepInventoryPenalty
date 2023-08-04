@@ -3,20 +3,20 @@
 	"id": "keep-inventory-penalty",
 	"version": "${version}",
 	"name": "Keep Inventory Penalty",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "KeepInventory Penalty adds an XP Penalty when you die while using keepInventory",
 	"authors": [
 		"FabForReal"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/FabForReal/KeepInventoryPenalty",
+		"sources": "https://github.com/FabForReal/KeepInventoryPenalty"
 	},
 	"license": "MIT",
 	"icon": "assets/keep-inventory-penalty/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"fab.keepinventorypenalty.ExampleMod"
+			"fab.keepinventorypenalty.KeepInventoryPenalty"
 		]
 	},
 	"mixins": [
@@ -27,8 +27,5 @@
 		"minecraft": "~1.20.1",
 		"java": ">=17",
 		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }
