@@ -5,7 +5,8 @@
 	"name": "Keep Inventory Penalty",
 	"description": "KeepInventory Penalty adds an XP Penalty when you die while using keepInventory",
 	"authors": [
-		"FabForReal"
+		"FabForReal",
+		"Tidari"
 	],
 	"contact": {
 		"homepage": "https://github.com/FabForReal/KeepInventoryPenalty",
