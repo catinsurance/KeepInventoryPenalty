@@ -2,6 +2,9 @@ package fab.keepinventorypenalty.mixin;
 
 import fab.keepinventorypenalty.config.ConfigManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,8 +25,14 @@ public class DeathMixin
 
 			if(instance.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
 			{
-				int totalLoss = instance.experienceLevel / ConfigManager.GetConfig().LossPercentage;
-				instance.setExperienceLevel(instance.experienceLevel - totalLoss);
+				int loss = instance.experienceLevel / ConfigManager.GetConfig().LossPercentage;
+				int totalLoss = instance.experienceLevel - loss;
+				instance.setExperienceLevel(loss);
+
+				MutableText text = Text.translatable("chat.keepinventorypenalty.death_1").formatted()
+						.append(Text.literal(Integer.toString(totalLoss)).formatted(Formatting.RED))
+						.append(Text.translatable("chat.keepinventorypenalty.death_2").formatted());
+				instance.sendMessage(text);
 			}
 		}
 	}
