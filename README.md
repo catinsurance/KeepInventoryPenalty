@@ -8,7 +8,7 @@ Feel free to learn from this repository or use it to develop your own mod.
 # Download
 
 - Download the latest stable release under the "Releases" section <a href="https://github.com/FabForReal/KeepInventoryPenalty/releases">here</a>
-- *Modrinth soon?*
+- <a href="https://modrinth.com/mod/keep-inventory-penalty">Modrinth Page</a>
 
 # Permission & Licenses
 This project is licensed under the MIT License and thus can be used freely in accordance with said license.
