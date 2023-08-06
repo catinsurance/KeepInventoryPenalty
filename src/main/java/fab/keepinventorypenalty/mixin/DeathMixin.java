@@ -46,7 +46,7 @@ public class DeathMixin
 				// Set the player xp level
 				instance.setExperienceLevel(loss);
 
-				// Send a global shame message
+				// Send a global shame message if enabled
 				if(ConfigManager.GetConfig().GlobalShame)
 				{
 					String playerName = instance.getDisplayName().getString();

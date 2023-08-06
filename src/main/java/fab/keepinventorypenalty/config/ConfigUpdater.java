@@ -10,14 +10,15 @@ public class ConfigUpdater
         oldConfig = config;
     }
 
-    // This is just a quick and dirty hack
-    // Setting the default value does currently not work but will be fine for now...
+    // This is just a quick and dirty hack bc I cant be bothered rn.
+    // The new json file will have the saved property values of the old file but
+    // setting the default values for the new properties does currently not work but will be fine for now...
     public ConfigData UpgradeConfig()
     {
-        ConfigData newDefault = ConfigManager.GetDefaultConfig();
+        //return default config if the loaded config is null just to be safe
         if(oldConfig == null)
         {
-            return newDefault;
+            return ConfigManager.GetDefaultConfig();
         }
 
         Gson gson = new Gson();

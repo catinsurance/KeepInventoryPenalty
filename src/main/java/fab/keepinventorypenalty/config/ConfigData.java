@@ -3,17 +3,12 @@ package fab.keepinventorypenalty.config;
 public class ConfigData
 {
     public int VERSION_DONT_CHANGE;
-    public int LossPercentage = 2;
-    public boolean PenaltyEnabled = true;
-    public boolean RandomizePenalty = false;
-    public int RandomMin = 2;
-    public int RandomMax = 4;
-    public boolean GlobalShame = false;
-
-    public ConfigData(int version)
-    {
-        VERSION_DONT_CHANGE = version;
-    }
+    public int LossPercentage;
+    public boolean PenaltyEnabled;
+    public boolean RandomizePenalty;
+    public int RandomMin;
+    public int RandomMax;
+    public boolean GlobalShame;
 
     public ConfigData(int version, int lossPercentage, boolean penaltyEnabled, boolean randomizePenalty, int randomMin,
                       int randomMax, boolean globalShame)

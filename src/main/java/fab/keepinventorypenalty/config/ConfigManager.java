@@ -47,7 +47,6 @@ public class ConfigManager
             ConfigData data = gson.fromJson(file, ConfigData.class);
             if(data == null)
             {
-                KeepInventoryPenalty.LOGGER.info("JSON PARSED CONFIG WAS NULL? LOADING DEFAULT CONFIG");
                 CONFIG = GetDefaultConfig();
                 return;
             }
@@ -64,10 +63,11 @@ public class ConfigManager
                 SaveConfig(server, newData);
 
             }
-            else if (data.VERSION_DONT_CHANGE == CONFIG_VERSION)
+            else
             {
                 CONFIG = data;
             }
+
             KeepInventoryPenalty.LOGGER.info("SUCCESSFULLY LOADED CONFIG");
         }
         else
