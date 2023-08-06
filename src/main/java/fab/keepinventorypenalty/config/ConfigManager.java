@@ -12,6 +12,8 @@ import java.nio.file.Path;
 
 public class ConfigManager
 {
+    // INCREMENT BY 1 WHEN THE CONFIG FILE CHANGED
+    public static int CONFIG_VERSION = 1;
     public static String file = "keepInventoryPenalty.json";
     private static Path getSaveFolder(MinecraftServer server)
     {
@@ -45,27 +47,46 @@ public class ConfigManager
             ConfigData data = gson.fromJson(file, ConfigData.class);
             if(data == null)
             {
-                CONFIG = GetDefaultConfig();
                 KeepInventoryPenalty.LOGGER.info("JSON PARSED CONFIG WAS NULL? LOADING DEFAULT CONFIG");
+                CONFIG = GetDefaultConfig();
+                return;
             }
-            else
-                CONFIG = data;
 
+            if(data.VERSION_DONT_CHANGE < CONFIG_VERSION)
+            {
+                KeepInventoryPenalty.LOGGER.info("DETECTED OLDER CONFIG");
+                ConfigUpdater updater = new ConfigUpdater(data);
+                ConfigData newData = updater.UpgradeConfig();
+
+                CONFIG = newData;
+
+                // Save new server
+                SaveConfig(server, newData);
+
+            }
+            else if (data.VERSION_DONT_CHANGE == CONFIG_VERSION)
+            {
+                CONFIG = data;
+            }
             KeepInventoryPenalty.LOGGER.info("SUCCESSFULLY LOADED CONFIG");
         }
         else
         {
-            SaveConfig(server);
+            SaveConfig(server, GetDefaultConfig());
         }
     }
 
-    private static void SaveConfig(MinecraftServer server)
+    private static void SaveConfig(MinecraftServer server, ConfigData data)
     {
         try
         {
+            if(data == null)
+                data = GetDefaultConfig();
+
+            data.VERSION_DONT_CHANGE = CONFIG_VERSION;
+
             BufferedWriter writer = new BufferedWriter(new FileWriter(getSaveFile(server).toString()));
 
-            ConfigData data = GetDefaultConfig();
             Gson gson = new Gson();
             String saveString = gson.toJson(data);
 
@@ -79,9 +100,10 @@ public class ConfigManager
         }
     }
 
-    private static ConfigData GetDefaultConfig()
+    public static ConfigData GetDefaultConfig()
     {
-        return new ConfigData(2, true);
+        return new ConfigData(CONFIG_VERSION,2, true, false,
+                2, 4, false);
     }
 
     private static String getFile(MinecraftServer server)
