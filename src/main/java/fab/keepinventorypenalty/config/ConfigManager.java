@@ -102,8 +102,8 @@ public class ConfigManager
 
     public static ConfigData GetDefaultConfig()
     {
-        return new ConfigData(CONFIG_VERSION,2, true, false,
-                2, 4, false);
+        return new ConfigData(CONFIG_VERSION,0.5f, true, false,
+                0.5f, 0.7f, false);
     }
 
     private static String getFile(MinecraftServer server)
