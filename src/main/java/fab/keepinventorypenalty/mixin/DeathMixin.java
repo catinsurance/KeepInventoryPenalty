@@ -1,5 +1,6 @@
 package fab.keepinventorypenalty.mixin;
 
+import fab.keepinventorypenalty.PenaltyCalculator;
 import fab.keepinventorypenalty.config.ConfigManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
@@ -25,14 +26,32 @@ public class DeathMixin
 
 			if(instance.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
 			{
-				int loss = instance.experienceLevel / ConfigManager.GetConfig().LossPercentage;
-				int totalLoss = instance.experienceLevel - loss;
-				instance.setExperienceLevel(loss);
+				float loss;
+				if(ConfigManager.GetConfig().RandomizePenalty)
+				{
+					loss = PenaltyCalculator.RandomizedPenalty(instance.experienceLevel);
+				}
+				else
+				{
+					loss = PenaltyCalculator.DefaultPenalty(instance.experienceLevel);
+				}
+				int roundedLoss = Math.round(loss);
+				int totalLoss = instance.experienceLevel - roundedLoss;
 
-				MutableText text = Text.translatable("chat.keepinventorypenalty.death_1").formatted()
-						.append(Text.literal(Integer.toString(totalLoss)).formatted(Formatting.RED))
-						.append(Text.translatable("chat.keepinventorypenalty.death_2").formatted());
-				instance.sendMessage(text);
+				// Set the player xp level
+				instance.setExperienceLevel(Math.round(roundedLoss));
+
+				// Send a global shame message if enabled
+				if(ConfigManager.GetConfig().GlobalShame)
+				{
+					String playerName = instance.getDisplayName().getString();
+					MutableText text = Text.literal(playerName)
+							.append(Text.literal(" died and lost ").formatted()
+							.append(Text.literal(Integer.toString(totalLoss)).formatted(Formatting.RED))
+							.append(Text.literal(" experience levels").formatted()));
+
+					instance.getServer().getPlayerManager().broadcast(text, false);
+				}
 			}
 		}
 	}
