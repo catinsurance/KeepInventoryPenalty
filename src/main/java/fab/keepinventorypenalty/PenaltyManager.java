@@ -1,11 +1,13 @@
 package fab.keepinventorypenalty;
 
 import fab.keepinventorypenalty.config.ConfigManager;
-import fab.keepinventorypenalty.config.data.LevelShareMode;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+
+import java.util.List;
 
 public class PenaltyManager
 {
@@ -20,10 +22,8 @@ public class PenaltyManager
         instance.getServer().getPlayerManager().broadcast(text, false);
     }
 
-    public static void SendKillShameMessage(ServerPlayerEntity instance, ServerPlayerEntity attacker, int totalLoss)
+    public static void SendAttackShameMessage(ServerPlayerEntity instance, ServerPlayerEntity attacker, int totalLoss)
     {
-        if(attacker == null) return;
-
         String playerName = instance.getDisplayName().getString();
         String attackerPlayerName = attacker.getDisplayName().getString();
         MutableText text = Text.literal(attackerPlayerName)
@@ -36,19 +36,48 @@ public class PenaltyManager
         instance.getServer().getPlayerManager().broadcast(text, false);
     }
 
-    public static void LevelShareFlow(ServerPlayerEntity instance, ServerPlayerEntity attacker, int totalLoss)
-    {;
-        if(ConfigManager.GetConfig().levelShare.modeOnPlayerKill == LevelShareMode.DISTRIBUTE)
+    public static void SendDistributionShameMessage(ServerPlayerEntity instance, int splitLoss)
+    {
+        String playerName = instance.getDisplayName().getString();
+        MutableText text = Text.literal(playerName)
+                .append(Text.literal(" died and distributed ").formatted()
+                        .append(Text.literal(Integer.toString(splitLoss)).formatted(Formatting.RED))
+                        .append(Text.literal(" experience levels among all players!").formatted()));
+
+        instance.getServer().getPlayerManager().broadcast(text, false);
+    }
+
+    public static void GiveAttackerXP(ServerPlayerEntity instance, DamageSource source, int totalLoss)
+    {
+        if(source.getAttacker() == null) return;
+
+        if(source.getAttacker().isPlayer())
         {
-            // TODO: Distribute equally among all current players
-        }
-        else if(ConfigManager.GetConfig().levelShare.modeOnPlayerKill == LevelShareMode.TAKE)
-        {
+            ServerPlayerEntity attacker = (ServerPlayerEntity) source.getAttacker();
+
             attacker.setExperienceLevel(attacker.experienceLevel += totalLoss);
+
+            // shame message if enabled
+            if(ConfigManager.GetConfig().globalShame)
+                SendAttackShameMessage(instance, attacker, totalLoss);
         }
-        else if(ConfigManager.GetConfig().levelShare.modeOnPlayerKill == LevelShareMode.LOOSE)
+    }
+
+    public static void DistributeAmongPlayers(ServerPlayerEntity instance, int totalLoss)
+    {
+        List<ServerPlayerEntity> players = instance.server.getPlayerManager().getPlayerList();
+        int playerCount = instance.server.getPlayerManager().getCurrentPlayerCount() - 1;
+        int splitLoss = totalLoss / playerCount;
+
+        for (ServerPlayerEntity current : players)
         {
-            // Default
+            if(current == instance) continue;
+
+            current.setExperienceLevel(current.experienceLevel += splitLoss);
         }
+
+        // shame message if enabled
+        if(ConfigManager.GetConfig().globalShame)
+            SendDistributionShameMessage(instance, splitLoss);
     }
 }
