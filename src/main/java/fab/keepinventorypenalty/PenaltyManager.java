@@ -1,7 +1,7 @@
 package fab.keepinventorypenalty;
 
 import fab.keepinventorypenalty.config.ConfigManager;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -11,6 +11,15 @@ import java.util.List;
 
 public class PenaltyManager
 {
+    public static void SendLocalDeathMessage(ServerPlayerEntity instance, int totalLoss)
+    {
+        MutableText text = Text.literal("You died and lost ")
+                        .append(Text.literal(Integer.toString(totalLoss)).formatted(Formatting.RED))
+                        .append(Text.literal(" experience levels").formatted());
+
+        instance.sendMessage(text);
+    }
+
     public static void SendShameMessage(ServerPlayerEntity instance, int totalLoss)
     {
         String playerName = instance.getDisplayName().getString();
@@ -47,20 +56,17 @@ public class PenaltyManager
         instance.getServer().getPlayerManager().broadcast(text, false);
     }
 
-    public static void GiveAttackerXP(ServerPlayerEntity instance, DamageSource source, int totalLoss)
+    public static void GiveAttackerXP(ServerPlayerEntity instance, Entity attacker, int totalLoss)
     {
-        if(source.getAttacker() == null) return;
+        if(!attacker.isPlayer()) return;
 
-        if(source.getAttacker().isPlayer())
-        {
-            ServerPlayerEntity attacker = (ServerPlayerEntity) source.getAttacker();
+        ServerPlayerEntity playerAttacker = (ServerPlayerEntity) attacker;
 
-            attacker.setExperienceLevel(attacker.experienceLevel += totalLoss);
+        playerAttacker.setExperienceLevel(playerAttacker.experienceLevel += totalLoss);
 
-            // shame message if enabled
-            if(ConfigManager.GetConfig().globalShame)
-                SendAttackShameMessage(instance, attacker, totalLoss);
-        }
+        // shame message if enabled
+        if(ConfigManager.GetConfig().globalShame)
+            SendAttackShameMessage(instance, playerAttacker, totalLoss);
     }
 
     public static void DistributeAmongPlayers(ServerPlayerEntity instance, int totalLoss)

@@ -9,6 +9,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stat;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,7 +38,7 @@ public abstract class DeathMixin
 			// get player
 			ServerPlayerEntity instance = (ServerPlayerEntity) (Object) this;
 
-			ServerPlayerEntity attacker = null;
+			Entity attacker = damageSource.getAttacker();
 
 			LevelShare levelShare = ConfigManager.GetConfig().levelShare;
 
@@ -56,17 +59,27 @@ public abstract class DeathMixin
 				int roundedLoss = Math.round(loss);
 				int totalLoss = instance.experienceLevel - roundedLoss;
 
-				if(levelShare.modeOnPlayerKill == LevelShareMode.TAKE)
+				// check for type of level share if the attacker is a player
+				if(attacker != null	&& attacker.isPlayer())
 				{
-					// give the attacker the xp
-					PenaltyManager.GiveAttackerXP(instance, damageSource, totalLoss);
+					if(levelShare.modeOnPlayerKill == LevelShareMode.TAKE)
+					{
+						// give the attacker the xp
+						PenaltyManager.GiveAttackerXP(instance, attacker, totalLoss);
+					}
+					else if (levelShare.modeOnPlayerKill == LevelShareMode.DISTRIBUTE)
+					{
+						// give all players a split amount of the xp
+						PenaltyManager.DistributeAmongPlayers(instance, totalLoss);
+					}
+					else if (levelShare.modeOnPlayerKill == LevelShareMode.LOOSE)
+					{
+						// regular xp penalty. just send a shame message if enabled
+						if(ConfigManager.GetConfig().globalShame)
+							PenaltyManager.SendShameMessage(instance, totalLoss);
+					}
 				}
-				else if (levelShare.modeOnPlayerKill == LevelShareMode.DISTRIBUTE)
-				{
-					// give all players a split amount of the xp
-					PenaltyManager.DistributeAmongPlayers(instance, totalLoss);
-				}
-				else if (levelShare.modeOnPlayerKill == LevelShareMode.LOOSE)
+				else // the attacker is no player. regular xp penalty
 				{
 					// Default. just send a shame message if enabled
 					if(ConfigManager.GetConfig().globalShame)
@@ -75,6 +88,10 @@ public abstract class DeathMixin
 
 				// set player xp level
 				instance.setExperienceLevel(roundedLoss);
+
+				// if global shaming is disabled, send a local message informing the player
+				if(!ConfigManager.GetConfig().globalShame)
+					PenaltyManager.SendLocalDeathMessage(instance, totalLoss);
 			}
 		}
 	}
