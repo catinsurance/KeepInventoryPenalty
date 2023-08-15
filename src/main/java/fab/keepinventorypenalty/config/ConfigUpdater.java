@@ -1,6 +1,8 @@
 package fab.keepinventorypenalty.config;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import fab.keepinventorypenalty.config.data.ConfigData;
 
 public class ConfigUpdater
 {
@@ -18,10 +20,10 @@ public class ConfigUpdater
         //return default config if the loaded config is null just to be safe
         if(oldConfig == null)
         {
-            return ConfigManager.GetDefaultConfig();
+            return new ConfigData();
         }
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String oldJson = gson.toJson(oldConfig);
 
         ConfigData newConfig;

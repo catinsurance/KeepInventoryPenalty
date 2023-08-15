@@ -7,14 +7,14 @@ public class PenaltyCalculator
 {
     public static float DefaultPenalty(int experienceLevel)
     {
-        float loss = experienceLevel * ConfigManager.GetConfig().LossPercentage;
+        float loss = experienceLevel * ConfigManager.GetConfig().penalty.lossPercentage;
         return experienceLevel - loss;
     }
 
     public static float RandomizedPenalty(int experienceLevel)
     {
-        float min = ConfigManager.GetConfig().RandomMin;
-        float max = ConfigManager.GetConfig().RandomMax;
+        float min = ConfigManager.GetConfig().penalty.randomizer.min;
+        float max = ConfigManager.GetConfig().penalty.randomizer.max;
         float rand = min + Random.create().nextFloat() * (max - min);
 
         float loss = experienceLevel * rand;

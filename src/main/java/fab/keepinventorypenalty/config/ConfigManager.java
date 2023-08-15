@@ -1,7 +1,9 @@
 package fab.keepinventorypenalty.config;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import fab.keepinventorypenalty.KeepInventoryPenalty;
+import fab.keepinventorypenalty.config.data.ConfigData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
 
@@ -13,7 +15,7 @@ import java.nio.file.Path;
 public class ConfigManager
 {
     // INCREMENT BY 1 WHEN THE CONFIG FILE CHANGED
-    public static int CONFIG_VERSION = 1;
+    public static int CONFIG_VERSION = 2;
     public static String file = "keepInventoryPenalty.json";
     private static Path getSaveFolder(MinecraftServer server)
     {
@@ -24,13 +26,13 @@ public class ConfigManager
         return getSaveFolder(server).resolve(file);
     }
 
-    private static ConfigData CONFIG;
+    private static ConfigData CONFIG = new ConfigData();
 
     public static ConfigData GetConfig()
     {
         if(CONFIG == null)
         {
-            CONFIG = GetDefaultConfig();
+            CONFIG = new ConfigData();
         }
         return CONFIG;
     }
@@ -47,7 +49,7 @@ public class ConfigManager
             ConfigData data = gson.fromJson(file, ConfigData.class);
             if(data == null)
             {
-                CONFIG = GetDefaultConfig();
+                CONFIG = new ConfigData();
                 return;
             }
 
@@ -55,13 +57,11 @@ public class ConfigManager
             {
                 KeepInventoryPenalty.LOGGER.info("DETECTED OLDER CONFIG");
                 ConfigUpdater updater = new ConfigUpdater(data);
-                ConfigData newData = updater.UpgradeConfig();
 
-                CONFIG = newData;
+                CONFIG = updater.UpgradeConfig();
 
-                // Save new server
-                SaveConfig(server, newData);
-
+                // Save new config
+                SaveConfig(server, data);
             }
             else
             {
@@ -72,7 +72,7 @@ public class ConfigManager
         }
         else
         {
-            SaveConfig(server, GetDefaultConfig());
+            SaveConfig(server, new ConfigData());
         }
     }
 
@@ -81,13 +81,13 @@ public class ConfigManager
         try
         {
             if(data == null)
-                data = GetDefaultConfig();
+                data = new ConfigData();
 
             data.VERSION_DONT_CHANGE = CONFIG_VERSION;
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(getSaveFile(server).toString()));
 
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String saveString = gson.toJson(data);
 
             writer.write(saveString);
@@ -98,12 +98,6 @@ public class ConfigManager
         {
             e.printStackTrace();
         }
-    }
-
-    public static ConfigData GetDefaultConfig()
-    {
-        return new ConfigData(CONFIG_VERSION,0.5f, true, false,
-                0.5f, 0.7f, false);
     }
 
     private static String getFile(MinecraftServer server)
