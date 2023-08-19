@@ -73,17 +73,23 @@ public class PenaltyManager
     {
         List<ServerPlayerEntity> players = instance.server.getPlayerManager().getPlayerList();
         int playerCount = instance.server.getPlayerManager().getCurrentPlayerCount() - 1;
-        int splitLoss = totalLoss / playerCount;
+
+        float splitLoss = (float) totalLoss / playerCount;
+        int roundedSplit = Math.round(splitLoss);
+        if(roundedSplit <= 0)
+        {
+            roundedSplit = 1;
+        }
 
         for (ServerPlayerEntity current : players)
         {
             if(current == instance) continue;
 
-            current.setExperienceLevel(current.experienceLevel += splitLoss);
+            current.setExperienceLevel(current.experienceLevel += roundedSplit);
         }
 
         // shame message if enabled
         if(ConfigManager.GetConfig().globalShame)
-            SendDistributionShameMessage(instance, splitLoss);
+            SendDistributionShameMessage(instance, roundedSplit);
     }
 }
