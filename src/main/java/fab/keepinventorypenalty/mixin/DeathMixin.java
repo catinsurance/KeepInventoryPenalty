@@ -22,12 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerPlayerEntity.class)
 public abstract class DeathMixin
 {
-	@Shadow public abstract boolean damage(DamageSource source, float amount);
-
-	@Shadow public abstract void attack(Entity target);
-
-	@Shadow public abstract void increaseStat(Stat<?> stat, int amount);
-
 	// Unsure whether injecting at the top or bottom (iykyk) of the method is better
 	@Inject(at = @At("TAIL"), method = "onDeath")
 	private void Death(DamageSource damageSource, CallbackInfo info)

@@ -71,8 +71,8 @@ public class PenaltyManager
 
     public static void DistributeAmongPlayers(ServerPlayerEntity instance, int totalLoss)
     {
-        List<ServerPlayerEntity> players = instance.server.getPlayerManager().getPlayerList();
-        int playerCount = instance.server.getPlayerManager().getCurrentPlayerCount() - 1;
+        List<ServerPlayerEntity> players = instance.getServer().getPlayerManager().getPlayerList();
+        int playerCount = instance.getServer().getPlayerManager().getCurrentPlayerCount() - 1;
 
         float splitLoss = (float) totalLoss / playerCount;
         int roundedSplit = Math.round(splitLoss);
